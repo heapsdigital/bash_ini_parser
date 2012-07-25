@@ -179,12 +179,16 @@ function read_ini()
 		fi
 
 		# Section marker?
-		if [[ "${line}" =~ ^\[[a-zA-Z0-9_]{1,}\]$ ]]
+		if [[ "${line}" =~ ^\[([a-zA-Z0-9_\-]{1,}[[:space:]]*:[[:space:]]*)?[a-zA-Z0-9_\-]{1,}\]$ ]]
 		then
 
 			# Set SECTION var to name of section (strip [ and ] from section marker)
 			SECTION="${line#[}"
 			SECTION="${SECTION%]}"
+			# Strip out anything post : (for [section : parentsection] syntax)
+			SECTION="${SECTION/[[:space:]]*:*/}"
+                        # Replace any '-' with '_'
+                        SECTION="${SECTION/-/_}"
 			((SECTIONS_NUM++))
 
 			continue
@@ -200,7 +204,7 @@ function read_ini()
 		fi
 
 		# Valid var/value line? (check for variable name and then '=')
-		if ! [[ "${line}" =~ ^[a-zA-Z0-9._]{1,}[[:space:]]*= ]]
+		if ! [[ "${line}" =~ ^[a-zA-Z0-9._]{1,}(\[\])?[[:space:]]*= ]]
 		then
 			echo "Error: Invalid line:" >&2
 			echo " ${LINE_NUM}: $line" >&2
@@ -218,6 +222,10 @@ function read_ini()
 		VAR="${VAR%%+([[:space:]])}"
 		VAL="${VAL##+([[:space:]])}"
 		VAR=$(echo $VAR)
+
+		# replace any array indicators
+		# @TODO - replace _Array with counter specific to $VAR
+                VAR="${VAR/\[\]/_Array}"
 
 
 		# Construct variable name:

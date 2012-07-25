@@ -124,4 +124,12 @@ var1=value
 	as 1; 'no', 'false' and 'off' are interpreted as 0
 
 
+- Supports Zend Framework INI format (somewhat): 
+  - will parse parent syntax, but section2 will not inherit any variables from 
+    section1, eg:
+  [section2 : section1]
 
+  - will parse array syntax, but will treat the array as a single variable only 
+    storing the last value:
+  var1[]=value1
+  var1[]=value2
